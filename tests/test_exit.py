@@ -1,17 +1,18 @@
-import time
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium import webdriver
+from locators import PagesLocators
 
 
-# Выход по кнопке «Выйти» в личном кабинете.
-driver = webdriver.Chrome()
-driver.get("https://stellarburgers.nomoreparties.site/login")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='text'][name='name']").send_keys("vadimkotyukov12999@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='password'][name='Пароль']").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[text()='Войти']").click()
-driver.find_element(By.LINK_TEXT, "Личный Кабинет").click()
-driver.implicitly_wait(3)
-driver.find_element(By.XPATH, "//li[contains(@class, 'Account_listItem')]//button[text()='Выход']").click()
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/login', f"Ожидается URL - https://stellarburgers.nomoreparties.site/login, текущий URL: {driver.current_url}"
-driver.quit()
+def test_exit(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/login")
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys("vadimkotyukov12999@yandex.ru")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys("32fr21")
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_BUTTON)))
+    driver.find_element(By.XPATH, PagesLocators.HOME_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_EXIT_BUTTON)))
+    driver.find_element(By.XPATH, PagesLocators.HOME_EXIT_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.AUTH_TITLE)))
+    assert driver.find_element(By.XPATH, PagesLocators.AUTH_TITLE).is_displayed(), "Выход из учетной записи не произошел"

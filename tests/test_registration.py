@@ -1,30 +1,39 @@
-import time
 from selenium.webdriver.common.by import By
-from selenium import webdriver
+from an_additional_task import generate_email
+from an_additional_task import generate_password
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from locators import PagesLocators
+
+def test_invalid_password_registration(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/register")
+    wait = WebDriverWait(driver, 10)
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_NAME_INPUT).send_keys("Гриша")
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_EMAIL_INPUT).send_keys(generate_email())
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_PASSWORD_INPUT).send_keys("12345")
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.REGISTRATION_ERROR_PASSWORD)))
+    assert driver.find_element(By.XPATH, PagesLocators.REGISTRATION_ERROR_PASSWORD).is_displayed(), "Ошибка 'Некорректный пароль' не выведена"
+
+def test_registration(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/register")
+    wait = WebDriverWait(driver, 10)
+    email = generate_email()
+    password = generate_password()
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_NAME_INPUT).send_keys("Гриша")
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_EMAIL_INPUT).send_keys(email)
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_PASSWORD_INPUT).send_keys(password)
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_BUTTON)))
+    driver.find_element(By.XPATH, PagesLocators.HOME_BUTTON).click()
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys(email)
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys(password)
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_BUTTON)))
+    driver.find_element(By.XPATH, PagesLocators.HOME_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_LOGIN)))
+    email_value = driver.find_element(By.XPATH, PagesLocators.HOME_LOGIN).get_attribute("value")
+    assert email_value == email, "Регистрация не пройдена"
 
 
-# Ошибка для некорректного пароля
-driver = webdriver.Chrome()
-driver.get("https://stellarburgers.nomoreparties.site/register")
-driver.find_element(By.CSS_SELECTOR, "#root > div > main > div > form > fieldset:nth-child(1) > div > div > input").send_keys("Гриша")
-driver.find_element(By.CSS_SELECTOR, "#root > div > main > div > form > fieldset:nth-child(2) > div > div > input").send_keys("example@example.com")
-driver.find_element(By.CSS_SELECTOR, "#root > div > main > div > form > fieldset:nth-child(3) > div > div > input").send_keys("32fr2")
-driver.find_element(By.XPATH, "//button[contains(text(), 'Зарегистрироваться')]").click()
-driver.find_element(By.XPATH, "//*[contains(text(), 'Некорректный пароль')]")
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/register', f"Ожидается URL - https://stellarburgers.nomoreparties.site/register, текущий URL: {driver.current_url}"
-driver.quit()
-
-
-
-# Успешная регистрация
-driver = webdriver.Chrome()
-driver.get("https://stellarburgers.nomoreparties.site/register")
-driver.find_element(By.CSS_SELECTOR, "#root > div > main > div > form > fieldset:nth-child(1) > div > div > input").send_keys("Вадим")
-driver.find_element(By.CSS_SELECTOR, "#root > div > main > div > form > fieldset:nth-child(2) > div > div > input").send_keys("vadimkotyukov12932@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "#root > div > main > div > form > fieldset:nth-child(3) > div > div > input").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[contains(text(), 'Зарегистрироваться')]").click()
-time.sleep(10)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/login', f"Ожидается URL - https://stellarburgers.nomoreparties.site/login, текущий URL: {driver.current_url}"
-driver.quit()
 

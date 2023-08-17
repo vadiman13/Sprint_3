@@ -1,52 +1,48 @@
-import time
-
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium import webdriver
+from locators import PagesLocators
 
 
-# Вход через кнопку "Личный кабинет"
-driver = webdriver.Chrome()
-driver.get("https://stellarburgers.nomoreparties.site/")
-driver.find_element(By.LINK_TEXT, "Личный Кабинет").click()
-driver.find_element(By.CSS_SELECTOR, "input.text[type='text'][name='name']").send_keys("vadimkotyukov12999@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='password'][name='Пароль']").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[text()='Войти']").click()
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/', f"Ожидается URL - https://stellarburgers.nomoreparties.site/, текущий URL: {driver.current_url}"
-driver.quit()
+def test_enter_home_button(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/")
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.XPATH, PagesLocators.HOME_BUTTON).click()
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys("vadimkotyukov12999@yandex.ru")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys("32fr21")
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.ORDER_BUTTON)))
+    assert driver.find_element(By.XPATH, PagesLocators.ORDER_BUTTON).is_displayed(), "Авторизация не пройдена"
 
 
-# Вход через кнопку в форме регистрации
-driver = webdriver.Chrome()
-driver.get("https://stellarburgers.nomoreparties.site/register")
-driver.find_element(By.LINK_TEXT, "Войти").click()
-driver.find_element(By.CSS_SELECTOR, "input.text[type='text'][name='name']").send_keys("vadimkotyukov12999@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='password'][name='Пароль']").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[text()='Войти']").click()
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/', f"Ожидается URL - https://stellarburgers.nomoreparties.site/, текущий URL: {driver.current_url}"
-driver.quit()
+def test_enter_registration_button(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/register")
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_ENTER_LINK).click()
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys("vadimkotyukov12999@yandex.ru")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys("32fr21")
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.ORDER_BUTTON)))
+    assert driver.find_element(By.XPATH, PagesLocators.ORDER_BUTTON).is_displayed(), "Авторизация не пройдена"
 
 
-# Вход через кнопку в форме восстановления пароля.
-driver = webdriver.Chrome()
-driver.get("https://stellarburgers.nomoreparties.site/forgot-password")
-driver.find_element(By.LINK_TEXT, "Войти").click()
-driver.find_element(By.CSS_SELECTOR, "input.text[type='text'][name='name']").send_keys("vadimkotyukov12999@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='password'][name='Пароль']").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[text()='Войти']").click()
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/', f"Ожидается URL - https://stellarburgers.nomoreparties.site/, текущий URL: {driver.current_url}"
-driver.quit()
 
+def test_enter_forgot_button(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/forgot-password")
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.XPATH, PagesLocators.REMEMBER_PASSWORD_LINK).click()
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys("vadimkotyukov12999@yandex.ru")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys("32fr21")
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.ORDER_BUTTON)))
+    assert driver.find_element(By.XPATH, PagesLocators.ORDER_BUTTON).is_displayed(), "Авторизация не пройдена"
 
-# Вход по кнопке «Войти в аккаунт» на главной,
-driver = webdriver.Chrome()
-driver.get("https://stellarburgers.nomoreparties.site/")
-driver.find_element(By.XPATH, "//button[text()='Войти в аккаунт']").click()
-driver.find_element(By.CSS_SELECTOR, "input.text[type='text'][name='name']").send_keys("vadimkotyukov12999@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='password'][name='Пароль']").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[text()='Войти']").click()
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/', f"Ожидается URL - https://stellarburgers.nomoreparties.site/, текущий URL: {driver.current_url}"
-driver.quit()
+def test_enter_head_button(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/")
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.XPATH, PagesLocators.CONSTRUCT_ENTER).click()
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys("vadimkotyukov12999@yandex.ru")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys("32fr21")
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.ORDER_BUTTON)))
+    assert driver.find_element(By.XPATH, PagesLocators.ORDER_BUTTON).is_displayed(), "Авторизация не пройдена"

@@ -4,238 +4,174 @@
 
 ## 1. Тестирование регистрации - test_registration
 ### 1.1 Ошибка для некорректного пароля
-
 ```python
 driver.get("https://stellarburgers.nomoreparties.site/register")
-driver.find_element(By.CSS_SELECTOR, "#root > div > main > div > form > fieldset:nth-child(1) > div > div > input").send_keys("Гриша")
-driver.find_element(By.CSS_SELECTOR, "#root > div > main > div > form > fieldset:nth-child(2) > div > div > input").send_keys("example@example.com")
-driver.find_element(By.CSS_SELECTOR, "#root > div > main > div > form > fieldset:nth-child(3) > div > div > input").send_keys("32fr2")
-driver.find_element(By.XPATH, "//button[contains(text(), 'Зарегистрироваться')]").click()
-driver.find_element(By.XPATH, "//*[contains(text(), 'Некорректный пароль')]")
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/register', f"Ожидается URL - https://stellarburgers.nomoreparties.site/register, текущий URL: {driver.current_url}"
+    wait = WebDriverWait(driver, 10)
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_NAME_INPUT).send_keys("Гриша")
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_EMAIL_INPUT).send_keys(generate_email())
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_PASSWORD_INPUT).send_keys("12345")
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.REGISTRATION_ERROR_PASSWORD)))
+    assert driver.find_element(By.XPATH, PagesLocators.REGISTRATION_ERROR_PASSWORD).is_displayed(), "Ошибка 'Некорректный пароль' не выведена"
 ```
-### Используемые локаторы:
-1) Поле ввода имени - CSS_SELECTOR: "#root > div > main > div > form > fieldset:nth-child(1) > div > div > input"
-2) Поле ввода email - CSS_SELECTOR: "#root > div > main > div > form > fieldset:nth-child(2) > div > div > input"
-3) Поле ввода пароля - CSS_SELECTOR: "#root > div > main > div > form > fieldset:nth-child(3) > div > div > input"
-4) Кнопка "Зарегестрироваться" - XPATH: "//button[contains(text(), 'Зарегистрироваться')]"
-5) Текст ошибки пароля - XPATH: "//*[contains(text(), 'Некорректный пароль')]"
-
 ### 1.2 Успешная регистрация
 ```python
-driver.get("https://stellarburgers.nomoreparties.site/register")
-driver.find_element(By.CSS_SELECTOR, "#root > div > main > div > form > fieldset:nth-child(1) > div > div > input").send_keys("Вадим")
-driver.find_element(By.CSS_SELECTOR, "#root > div > main > div > form > fieldset:nth-child(2) > div > div > input").send_keys("vadimkotyukov12932@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "#root > div > main > div > form > fieldset:nth-child(3) > div > div > input").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[contains(text(), 'Зарегистрироваться')]").click()
-time.sleep(10)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/login', f"Ожидается URL - https://stellarburgers.nomoreparties.site/login, текущий URL: {driver.current_url}"
+    driver.get("https://stellarburgers.nomoreparties.site/register")
+    wait = WebDriverWait(driver, 10)
+    email = generate_email()
+    password = generate_password()
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_NAME_INPUT).send_keys("Гриша")
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_EMAIL_INPUT).send_keys(email)
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_PASSWORD_INPUT).send_keys(password)
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_BUTTON)))
+    driver.find_element(By.XPATH, PagesLocators.HOME_BUTTON).click()
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys(email)
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys(password)
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_BUTTON)))
+    driver.find_element(By.XPATH, PagesLocators.HOME_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_LOGIN)))
+    email_value = driver.find_element(By.XPATH, PagesLocators.HOME_LOGIN).get_attribute("value")
+    assert email_value == email, "Регистрация не пройдена"
 ```
-### Используемые локаторы:
-1) Поле ввода имени - CSS_SELECTOR: "#root > div > main > div > form > fieldset:nth-child(1) > div > div > input"
-2) Поле ввода email - CSS_SELECTOR: "#root > div > main > div > form > fieldset:nth-child(2) > div > div > input"
-3) Поле ввода пароля - CSS_SELECTOR: "#root > div > main > div > form > fieldset:nth-child(3) > div > div > input"
-4) Кнопка "Зарегестрироваться" - XPATH: "//button[contains(text(), 'Зарегистрироваться')]"
-5) Текст ошибки пароля - XPATH: "//*[contains(text(), 'Некорректный пароль')]"
 
 ## 2. Тестирование авторизации - test_enter
 ### 2.1 вход по кнопке «Войти в аккаунт» на главной
 ```python
-driver.get("https://stellarburgers.nomoreparties.site/")
-driver.find_element(By.XPATH, "//button[text()='Войти в аккаунт']").click()
-driver.find_element(By.CSS_SELECTOR, "input.text[type='text'][name='name']").send_keys("vadimkotyukov12999@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='password'][name='Пароль']").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[text()='Войти']").click()
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/', f"Ожидается URL - https://stellarburgers.nomoreparties.site/, текущий URL: {driver.current_url}"
+def test_enter_home_button(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/")
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.XPATH, PagesLocators.HOME_BUTTON).click()
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys("vadimkotyukov12999@yandex.ru")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys("32fr21")
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.ORDER_BUTTON)))
+    assert driver.find_element(By.XPATH, PagesLocators.ORDER_BUTTON).is_displayed(), "Авторизация не пройдена"
 ```
-### Используемые локаторы:
-1) Кнопка "Войти в аккаунт" - XPATH, "//button[text()='Войти в аккаунт']"
-2) Поле ввода логина - CSS_SELECTOR: "input.text[type='text'][name='name']"
-3) Поле ввода логина - CSS_SELECTOR: "input.text[type='password'][name='Пароль']"
-4) Кнопка "Войти" - XPATH: "//button[text()='Войти']"
-
 ### 2.2 вход через кнопку «Личный кабинет»
 ```python
-driver.get("https://stellarburgers.nomoreparties.site/")
-driver.find_element(By.LINK_TEXT, "Личный Кабинет").click()
-driver.find_element(By.CSS_SELECTOR, "input.text[type='text'][name='name']").send_keys("vadimkotyukov12999@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='password'][name='Пароль']").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[text()='Войти']").click()
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/', f"Ожидается URL - https://stellarburgers.nomoreparties.site/, текущий URL: {driver.current_url}"
+def test_enter_registration_button(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/register")
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.XPATH, PagesLocators.REGISTRATION_ENTER_LINK).click()
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys("vadimkotyukov12999@yandex.ru")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys("32fr21")
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.ORDER_BUTTON)))
+    assert driver.find_element(By.XPATH, PagesLocators.ORDER_BUTTON).is_displayed(), "Авторизация не пройдена"
 ```
-### Используемые локаторы:
-1) Кнопка "Личный кабинет" - LINK_TEXT: "Личный Кабинет"
-2) Поле ввода логина - CSS_SELECTOR: "input.text[type='text'][name='name']"
-3) Поле ввода логина - CSS_SELECTOR: "input.text[type='password'][name='Пароль']"
-4) Кнопка "Войти" - XPATH: "//button[text()='Войти']"
-
 ### 2.3 вход через кнопку в форме регистрации
 ```python
-driver.get("https://stellarburgers.nomoreparties.site/register")
-driver.find_element(By.LINK_TEXT, "Войти").click()
-driver.find_element(By.CSS_SELECTOR, "input.text[type='text'][name='name']").send_keys("vadimkotyukov12999@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='password'][name='Пароль']").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[text()='Войти']").click()
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/', f"Ожидается URL - https://stellarburgers.nomoreparties.site/, текущий URL: {driver.current_url}"
+def test_enter_forgot_button(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/forgot-password")
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.XPATH, PagesLocators.REMEMBER_PASSWORD_LINK).click()
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys("vadimkotyukov12999@yandex.ru")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys("32fr21")
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.ORDER_BUTTON)))
+    assert driver.find_element(By.XPATH, PagesLocators.ORDER_BUTTON).is_displayed(), "Авторизация не пройдена"
 ```
-### Используемые локаторы:
-1) Кнопка "Войти" - LINK_TEXT: "Войти"
-2) Поле ввода логина - CSS_SELECTOR: "input.text[type='text'][name='name']"
-3) Поле ввода логина - CSS_SELECTOR: "input.text[type='password'][name='Пароль']"
-4) Кнопка "Войти" - XPATH: "//button[text()='Войти']"
-
 ### 2.4 вход через кнопку в форме восстановления пароля
 ```python
-driver.get("https://stellarburgers.nomoreparties.site/forgot-password")
-driver.find_element(By.LINK_TEXT, "Войти").click()
-driver.find_element(By.CSS_SELECTOR, "input.text[type='text'][name='name']").send_keys("vadimkotyukov12999@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='password'][name='Пароль']").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[text()='Войти']").click()
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/', f"Ожидается URL - https://stellarburgers.nomoreparties.site/, текущий URL: {driver.current_url}"
+def test_enter_head_button(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/")
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.XPATH, PagesLocators.CONSTRUCT_ENTER).click()
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys("vadimkotyukov12999@yandex.ru")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys("32fr21")
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.ORDER_BUTTON)))
+    assert driver.find_element(By.XPATH, PagesLocators.ORDER_BUTTON).is_displayed(), "Авторизация не пройдена"
 ```
-### Используемые локаторы:
-1) Кнопка "Войти" - LINK_TEXT: "Войти"
-2) Поле ввода логина - CSS_SELECTOR: "input.text[type='text'][name='name']"
-3) Поле ввода логина - CSS_SELECTOR: "input.text[type='password'][name='Пароль']"
-4) Кнопка "Войти" - XPATH: "//button[text()='Войти']"
 
 ## 3. Тестирование перехода в личный кабинет по клику на «Личный кабинет» - test_home
 ```python
-driver.get("https://stellarburgers.nomoreparties.site/login")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='text'][name='name']").send_keys("vadimkotyukov12999@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='password'][name='Пароль']").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[text()='Войти']").click()
-driver.find_element(By.LINK_TEXT, "Личный Кабинет").click()
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/account/profile', f"Ожидается URL - https://stellarburgers.nomoreparties.site/account/profile, текущий URL: {driver.current_url}"
+def test_home(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/login")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys("vadimkotyukov12999@yandex.ru")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys("32fr21")
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    wait = WebDriverWait(driver, 5)
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_BUTTON)))
+    driver.find_element(By.XPATH, PagesLocators.HOME_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_PROFILE_DESCRIPTION)))
+    assert driver.find_element(By.XPATH, PagesLocators.HOME_PROFILE_DESCRIPTION).is_displayed(), 'Переход в "Личный кабинет" не осуществлен'
 ```
-### Используемые локаторы:
-1) Поле ввода логина - CSS_SELECTOR: "input.text[type='text'][name='name']"
-2) Поле ввода логина - CSS_SELECTOR: "input.text[type='password'][name='Пароль']"
-3) Кнопка "Войти" - XPATH: "//button[text()='Войти']"
-4) Кнопка "Личный кабинет" - LINK_TEXT: "Личный Кабинет"
 
 ## 4. Тестистирование перехода в «Конструктор» 
 ### 4.1 по клику на «Конструктор» 
 ```python
-driver.get("https://stellarburgers.nomoreparties.site/login")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='text'][name='name']").send_keys("vadimkotyukov12999@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='password'][name='Пароль']").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[text()='Войти']").click()
-driver.find_element(By.LINK_TEXT, "Личный Кабинет").click()
-driver.find_element(By.XPATH, "//p[text()='Конструктор']").click()
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/', f"Ожидается URL - https://stellarburgers.nomoreparties.site/, текущий URL: {driver.current_url}"
+def test_construct_button(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/login")
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys("vadimkotyukov12999@yandex.ru")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys("32fr21")
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    driver.find_element(By.XPATH, PagesLocators.HOME_BUTTON).click()
+    driver.find_element(By.XPATH, PagesLocators.CONSTRUCT_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.ORDER_BUTTON)))
+    assert driver.find_element(By.XPATH, PagesLocators.ORDER_BUTTON).is_displayed(), "Переход в Конструктор не осуществлен"
 ```
-### Используемые локаторы:
-1) Поле ввода логина - CSS_SELECTOR: "input.text[type='text'][name='name']"
-2) Поле ввода логина - CSS_SELECTOR: "input.text[type='password'][name='Пароль']"
-3) Кнопка "Войти" - XPATH: "//button[text()='Войти']"
-4) Кнопка "Личный кабинет" - LINK_TEXT: "Личный Кабинет"
-5) Кнопка "Конструктор" - XPATH: "//p[text()='Конструктор']
-
 ### 4.2 по клику на логотип Stellar Burgers
 ```Python
-driver.get("https://stellarburgers.nomoreparties.site/login")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='text'][name='name']").send_keys("vadimkotyukov12999@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='password'][name='Пароль']").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[text()='Войти']").click()
-driver.find_element(By.LINK_TEXT, "Личный Кабинет").click()
-driver.find_element(By.XPATH, "//*[contains(@class, 'AppHeader_header__logo')]").click()
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/', f"Ожидается URL - https://stellarburgers.nomoreparties.site/, текущий URL: {driver.current_url}"
+def test_construct_logo(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/login")
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys("vadimkotyukov12999@yandex.ru")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys("32fr21")
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    driver.find_element(By.XPATH, PagesLocators.HOME_BUTTON).click()
+    driver.find_element(By.XPATH, PagesLocators.LOGO).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.ORDER_BUTTON)))
+    assert driver.find_element(By.XPATH, PagesLocators.ORDER_BUTTON).is_displayed(), "Переход в Конструктор не осуществлен"
 ```
-### Используемые локаторы:
-1) Поле ввода логина - CSS_SELECTOR: "input.text[type='text'][name='name']"
-2) Поле ввода логина - CSS_SELECTOR: "input.text[type='password'][name='Пароль']"
-3) Кнопка "Войти" - XPATH: "//button[text()='Войти']"
-4) Кнопка "Личный кабинет" - LINK_TEXT: "Личный Кабинет"
-5) Лого - XPATH: "//*[contains(@class, 'AppHeader_header__logo')]"
 
 ## 5. Тестирование выхода из аккаунта по кнопке «Выйти» в личном кабинете - test_exit
 ```python
-driver.get("https://stellarburgers.nomoreparties.site/login")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='text'][name='name']").send_keys("vadimkotyukov12999@yandex.ru")
-driver.find_element(By.CSS_SELECTOR, "input.text[type='password'][name='Пароль']").send_keys("32fr21")
-driver.find_element(By.XPATH, "//button[text()='Войти']").click()
-driver.find_element(By.LINK_TEXT, "Личный Кабинет").click()
-driver.implicitly_wait(3)
-driver.find_element(By.XPATH, "//li[contains(@class, 'Account_listItem')]//button[text()='Выход']").click()
-time.sleep(3)
-assert driver.current_url == 'https://stellarburgers.nomoreparties.site/login', f"Ожидается URL - https://stellarburgers.nomoreparties.site/login, текущий URL: {driver.current_url}"
+def test_exit(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/login")
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys("vadimkotyukov12999@yandex.ru")
+    driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys("32fr21")
+    driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_BUTTON)))
+    driver.find_element(By.XPATH, PagesLocators.HOME_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_EXIT_BUTTON)))
+    driver.find_element(By.XPATH, PagesLocators.HOME_EXIT_BUTTON).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.AUTH_TITLE)))
+    assert driver.find_element(By.XPATH, PagesLocators.AUTH_TITLE).is_displayed(), "Выход из учетной записи не произошел"
 ```
-### Используемые локаторы:
-1) Поле ввода логина - CSS_SELECTOR: "input.text[type='text'][name='name']"
-2) Поле ввода логина - CSS_SELECTOR: "input.text[type='password'][name='Пароль']"
-3) Кнопка "Войти" - XPATH: "//button[text()='Войти']"
-4) Кнопка "Личный кабинет" - LINK_TEXT: "Личный Кабинет"
-5) Кнопка "Выйти" - XPATH: "//li[contains(@class, 'Account_listItem')]//button[text()='Выход']"
 
 ## 6. Тестирование перехода к разделам - test_construct_sections
-### 6.1 «Булки»,
-
+### 6.1 Проверка скролла меню при клике на таб
 ```python
-driver.get("https://stellarburgers.nomoreparties.site/")
-time.sleep(3)
-lower = driver.find_element(By.XPATH, ".//span[text()='Начинки']")
-driver.execute_script("arguments[0].scrollIntoView();", lower)
-time.sleep(3)
-upper = driver.find_element(By.XPATH, ".//span[text()='Булки']")
-driver.execute_script("arguments[0].scrollIntoView();", upper)
-time.sleep(3)
-try:
-    element = driver.find_element(By.CSS_SELECTOR, "div.tab_tab__1SPyG.tab_tab_type_current__2BEPc.pt-4.pr-10.pb-4.pl-10.noselect")
-    span_element = element.find_element(By.TAG_NAME, "span")
-    text = span_element.text
-    assert text == "Булки", "Выбран неверный раздел"
-    print("Выбран раздел булок")
-except:
-    print("Выбранный раздел не найден")
+def test_menu_tabs(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/")
+    tabs = driver.find_elements(By.XPATH, PagesLocators.CONSTRUCT_TABS)
+    sections = driver.find_elements(By.XPATH, PagesLocators.CONSTRUCT_SECTIONS)
+    order = ["Начинки", "Соусы", "Булки"]
+    for section_name in order:
+        tab_index = [i for i in range(len(tabs)) if tabs[i].text.strip() == section_name][0]
+        section_index = [i for i in range(len(sections)) if sections[i].text.strip() == section_name][0]
+        tab = tabs[tab_index]
+        section = sections[section_index]
+        driver.execute_script("arguments[0].click();", tab)
+        WebDriverWait(driver, 10).until(EC.visibility_of(section))
+        assert section.is_displayed(), "Выбранный раздел не отображен в меню"
 ```
-### Используемые локаторы:
-1) Пункт списка "Начинки" - By.XPATH: ".//span[text()='Начинки']"
-2) Пункт списка "Булки" - XPATH: ".//span[text()='Булки']"
-3) Активный раздел списка - CSS_SELECTOR: "div.tab_tab__1SPyG.tab_tab_type_current__2BEPc.pt-4.pr-10.pb-4.pl-10.noselect"
-
-### 6.2 «Соусы»
+### 6.2 Тестирование активации таба при скролле меню
 ```python
-driver.get("https://stellarburgers.nomoreparties.site/")
-time.sleep(3)
-driver.find_element(By.XPATH, ".//span[text()='Соусы']").click()
-time.sleep(3)
-try:
-    element = driver.find_element(By.CSS_SELECTOR, "div.tab_tab__1SPyG.tab_tab_type_current__2BEPc.pt-4.pr-10.pb-4.pl-10.noselect")
-    span_element = element.find_element(By.TAG_NAME, "span")
-    text = span_element.text
-    assert text == "Соусы", "Выбран неверный раздел"
-    print("Выбран раздел соусов")
-except:
-    print("Выбранный раздел не найден")
+def test_menu_scroll(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/")
+    tabs = driver.find_elements(By.XPATH, PagesLocators.CONSTRUCT_TABS)
+    sections = driver.find_elements(By.XPATH, PagesLocators.CONSTRUCT_SECTIONS)
+    for i in range(len(sections) - 1, -1, -1):
+        section = sections[i]
+        tab = tabs[i]
+        driver.execute_script("arguments[0].scrollIntoView({ behavior: 'smooth' })", section)
+        WebDriverWait(driver, 10).until(EC.visibility_of(tab))
+        WebDriverWait(driver, 10).until(EC.visibility_of(section))
+        assert tab.text.strip() == section.text.strip(), "Неактивен таб текщего раздела меню"
 ```
-### Используемые локаторы:
-1) Кнопка "Соусы" - XPATH: ".//span[text()='Соусы']"
-2) Активный раздел списка - CSS_SELECTOR: "div.tab_tab__1SPyG.tab_tab_type_current__2BEPc.pt-4.pr-10.pb-4.pl-10.noselect"
-    
-### 6.3 «Начинки»
-```python
-driver.get("https://stellarburgers.nomoreparties.site/")
-time.sleep(3)
-driver.find_element(By.XPATH, ".//span[text()='Начинки']").click()
-time.sleep(3)
-try:
-    element = driver.find_element(By.CSS_SELECTOR, "div.tab_tab__1SPyG.tab_tab_type_current__2BEPc.pt-4.pr-10.pb-4.pl-10.noselect")
-    span_element = element.find_element(By.TAG_NAME, "span")
-    text = span_element.text
-    assert text == "Начинки", "Выбран неверный раздел"
-    print("Выбран раздел начинок")
-except:
-    print("Выбранный раздел не найден")
-```
-### Используемые локаторы:
-1) Кнопка "Соусы" - XPATH: ".//span[text()='Начинки']"
-2) Активный раздел списка - CSS_SELECTOR: "div.tab_tab__1SPyG.tab_tab_type_current__2BEPc.pt-4.pr-10.pb-4.pl-10.noselect"
