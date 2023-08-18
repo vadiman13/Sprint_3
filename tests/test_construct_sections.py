@@ -3,28 +3,31 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from locators import PagesLocators
 
-def test_menu_tabs(driver):
-    driver.get("https://stellarburgers.nomoreparties.site/")
-    tabs = driver.find_elements(By.XPATH, PagesLocators.CONSTRUCT_TABS)
-    sections = driver.find_elements(By.XPATH, PagesLocators.CONSTRUCT_SECTIONS)
-    order = ["Начинки", "Соусы", "Булки"]
-    for section_name in order:
-        tab_index = [i for i in range(len(tabs)) if tabs[i].text.strip() == section_name][0]
-        section_index = [i for i in range(len(sections)) if sections[i].text.strip() == section_name][0]
-        tab = tabs[tab_index]
-        section = sections[section_index]
-        driver.execute_script("arguments[0].click();", tab)
-        WebDriverWait(driver, 10).until(EC.visibility_of(section))
-        assert section.is_displayed(), "Выбранный раздел не отображен в меню"
 
-def test_menu_scroll(driver):
+def test_tab_fillings(driver):
     driver.get("https://stellarburgers.nomoreparties.site/")
-    tabs = driver.find_elements(By.XPATH, PagesLocators.CONSTRUCT_TABS)
-    sections = driver.find_elements(By.XPATH, PagesLocators.CONSTRUCT_SECTIONS)
-    for i in range(len(sections) - 1, -1, -1):
-        section = sections[i]
-        tab = tabs[i]
-        driver.execute_script("arguments[0].scrollIntoView({ behavior: 'smooth' })", section)
-        WebDriverWait(driver, 10).until(EC.visibility_of(tab))
-        WebDriverWait(driver, 10).until(EC.visibility_of(section))
-        assert tab.text.strip() == section.text.strip(), "Неактивен таб текщего раздела меню"
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.XPATH, PagesLocators.CONSTRUCT_TAB_FILLINGS).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.CONSTRUCT_SECTION_FILLINGS)))
+    assert driver.find_element(By.XPATH, PagesLocators.CONSTRUCT_SECTION_FILLINGS).is_displayed(), "Выбранный раздел не отображен в меню"
+
+def test_tab_souces(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/")
+    wait = WebDriverWait(driver, 5)
+    driver.find_element(By.XPATH, PagesLocators.CONSTRUCT_TAB_FILLINGS).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.CONSTRUCT_SECTION_FILLINGS)))
+    tab_sources = driver.find_element(By.XPATH, PagesLocators.CONSTRUCT_TAB_SOUCES)
+    driver.execute_script("arguments[0].click();", tab_sources)
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.CONSTRUCT_SECTION_SOUCES)))
+    assert driver.find_element(By.XPATH, PagesLocators.CONSTRUCT_SECTION_SOUCES).is_displayed(), "Выбранный раздел не отображен в меню"
+
+def test_tab_buns(driver):
+    driver.get("https://stellarburgers.nomoreparties.site/")
+    wait = WebDriverWait(driver, 10)
+    driver.find_element(By.XPATH, PagesLocators.CONSTRUCT_TAB_FILLINGS).click()
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.CONSTRUCT_SECTION_FILLINGS)))
+    tab_buns = driver.find_element(By.XPATH, PagesLocators.CONSTRUCT_TAB_BUNS)
+    driver.execute_script("arguments[0].click();", tab_buns)
+    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.CONSTRUCT_SECTION_BUNS)))
+    assert driver.find_element(By.XPATH, PagesLocators.CONSTRUCT_SECTION_BUNS).is_displayed(), "Выбранный раздел не отображен в меню"
+

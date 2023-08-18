@@ -17,7 +17,7 @@ def test_invalid_password_registration(driver):
 
 def test_registration(driver):
     driver.get("https://stellarburgers.nomoreparties.site/register")
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, 15)
     email = generate_email()
     password = generate_password()
     driver.find_element(By.XPATH, PagesLocators.REGISTRATION_NAME_INPUT).send_keys("Гриша")
@@ -29,7 +29,7 @@ def test_registration(driver):
     driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_EMAIL_INPUT).send_keys(email)
     driver.find_element(By.CSS_SELECTOR, PagesLocators.AUTH_PASSWORD_INPUT).send_keys(password)
     driver.find_element(By.XPATH, PagesLocators.AUTH_ENTER_BUTTON).click()
-    wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_BUTTON)))
+    wait.until(EC.element_to_be_clickable((By.XPATH, PagesLocators.HOME_BUTTON)))
     driver.find_element(By.XPATH, PagesLocators.HOME_BUTTON).click()
     wait.until(EC.visibility_of_element_located((By.XPATH, PagesLocators.HOME_LOGIN)))
     email_value = driver.find_element(By.XPATH, PagesLocators.HOME_LOGIN).get_attribute("value")

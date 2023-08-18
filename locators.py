@@ -1,8 +1,12 @@
 
 class PagesLocators:
 
-    CONSTRUCT_TABS = '//span[contains(text(), "Начинки") or contains(text(), "Соусы") or contains(text(), "Булки")]'
-    CONSTRUCT_SECTIONS = '//h2[contains(text(), "Начинки") or contains(text(), "Соусы") or contains(text(), "Булки")]'
+    CONSTRUCT_TAB_FILLINGS = ".//span[text()='Начинки']"
+    CONSTRUCT_TAB_SOUCES = ".//span[text()='Соусы']"
+    CONSTRUCT_TAB_BUNS = ".//span[text()='Булки']"
+    CONSTRUCT_SECTION_FILLINGS = ".//h2[text()='Начинки']"
+    CONSTRUCT_SECTION_SOUCES = ".//h2[text()='Соусы']"
+    CONSTRUCT_SECTION_BUNS = ".//h2[text()='Булки']"
     CONSTRUCT_ENTER = '//button[contains(text(), "Войти в аккаунт")]'
     CONSTRUCT_BUTTON = '//p[contains(text(), "Конструктор")]'
     LOGO = "//*[contains(@class, 'AppHeader_header__logo')]"

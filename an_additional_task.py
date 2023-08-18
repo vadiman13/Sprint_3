@@ -9,6 +9,7 @@ def generate_email():
 
 
 
+
 def generate_password():
     password = str(random.randint(100000, 999999))
     return password
